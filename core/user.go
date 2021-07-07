@@ -1,15 +1,17 @@
 package core
 
 import (
+	"GinBAsic/config"
+	"GinBAsic/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetUser(c *gin.Context) {
-	userData := []User{}
+	userData := []model.User{}
 
-	DB.Find(&userData)
+	config.DB.Find(&userData)
 
 	c.JSON(200, gin.H{
 		"Status":  "success",
@@ -20,10 +22,10 @@ func GetUser(c *gin.Context) {
 
 func GetUserByID(c *gin.Context) {
 	id := c.Param("id")
-	var userItem User
+	var userItem model.User
 
 	// select * from user where id = id
-	getData := DB.First(&userItem, "id = ?", id)
+	getData := config.DB.First(&userItem, "id = ?", id)
 	if getData.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"Status":  "StatusNotFound",
@@ -41,14 +43,14 @@ func GetUserByID(c *gin.Context) {
 }
 
 func InsertUser(c *gin.Context) {
-	user := User{
+	user := model.User{
 		Username: c.PostForm("username"),
 		Fullname: c.PostForm("fullname"),
 		Email:    c.PostForm("email"),
 		Address:  c.PostForm("address"),
 	}
 
-	DB.Create(&user)
+	config.DB.Create(&user)
 	c.JSON(http.StatusCreated, gin.H{
 		"Status":  "Created",
 		"Message": "Insert User Success",

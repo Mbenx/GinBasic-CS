@@ -1,6 +1,8 @@
 package config
 
 import (
+	"GinBAsic/model"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -16,16 +18,7 @@ func InitDB() {
 		panic("failed to connect database")
 	}
 
-	// Get generic database object sql.DB to use its functions
-	sqlDB, err := DB.DB()
-	if err != nil {
-		panic("failed Get generic database object")
-	}
-
-	// Close
-	defer sqlDB.Close()
-
 	// run migration
-	DB.AutoMigrate(&Blog{})
-	DB.AutoMigrate(&User{})
+	DB.AutoMigrate(&model.Blog{})
+	DB.AutoMigrate(&model.User{})
 }

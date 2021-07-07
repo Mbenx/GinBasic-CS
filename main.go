@@ -1,21 +1,46 @@
 package main
 
 import (
+	"GinBAsic/config"
 	"GinBAsic/core"
 
 	// "./core"
 
 	"github.com/gin-gonic/gin"
+	"github.com/subosito/gotenv"
 )
 
 func main() {
+
+	// connect DB
+	config.InitDB()
+
+	// Get generic database object sql.DB to use its functions
+	sqlDB, err := config.DB.DB()
+	if err != nil {
+		panic("failed Get generic database object")
+	}
+
+	// Close
+	defer sqlDB.Close()
+
+	gotenv.Load()
+
 	// setup router
 	router := gin.Default()
 
 	// set endpoint
 	v1 := router.Group("/api/v1")
 	{
-		v1.GET("/", getHome)
+		v1.GET("/", core.GetHome)
+
+		auth := v1.Group("/auth")
+		{
+			auth.GET("/", core.IndexHandler)
+			auth.GET("/:provider", core.RedirectHandler)
+			auth.GET("/:provider/callback", core.CallbackHandler)
+		}
+
 		blogs := v1.Group("/blog")
 		{
 			blogs.GET("/", core.GetBlog)
@@ -34,10 +59,4 @@ func main() {
 
 	// run server
 	router.Run() // listen and serve in HTTP localhost:8080
-}
-
-func getHome(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"Message": "Welcome To Gin Framework",
-	})
 }

@@ -1,15 +1,17 @@
 package core
 
 import (
+	"GinBAsic/config"
+	"GinBAsic/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetBlog(c *gin.Context) {
-	blogData := []Blog{}
+	blogData := []model.Blog{}
 
-	DB.Find(&blogData)
+	config.DB.Find(&blogData)
 
 	c.JSON(200, gin.H{
 		"Message": "Welcome To Gin Framework",
@@ -19,11 +21,11 @@ func GetBlog(c *gin.Context) {
 
 func GetBlogByID(c *gin.Context) {
 	id := c.Param("id")
-	var blogItem Blog
+	var blogItem model.Blog
 
 	// select * from blogs where id = id
 	// DB.First(&blogItem, id)
-	getData := DB.First(&blogItem, "id = ?", id)
+	getData := config.DB.First(&blogItem, "id = ?", id)
 	if getData.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"Status":  "StatusNotFound",
@@ -41,13 +43,13 @@ func GetBlogByID(c *gin.Context) {
 }
 
 func InsertBlog(c *gin.Context) {
-	blog := Blog{
+	blog := model.Blog{
 		Title: c.PostForm("title"),
 		Desc:  c.PostForm("desc"),
 		Slug:  c.PostForm("slug"),
 	}
 
-	DB.Create(&blog)
+	config.DB.Create(&blog)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"Status":  "Created",
@@ -58,10 +60,10 @@ func InsertBlog(c *gin.Context) {
 
 func UpdateBlog(c *gin.Context) {
 	id := c.PostForm("id")
-	var blogItem Blog
+	var blogItem model.Blog
 
 	// get spesific data
-	getData := DB.First(&blogItem, "id = ?", id)
+	getData := config.DB.First(&blogItem, "id = ?", id)
 	if getData.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"Status":  "StatusNotFound",
@@ -77,7 +79,7 @@ func UpdateBlog(c *gin.Context) {
 	blogItem.Slug = c.PostForm("slug")
 
 	// save / update
-	DB.Save(&blogItem)
+	config.DB.Save(&blogItem)
 
 	c.JSON(http.StatusAccepted, gin.H{
 		"Status":  "Updated",
@@ -88,10 +90,10 @@ func UpdateBlog(c *gin.Context) {
 
 func DeleteBlog(c *gin.Context) {
 	id := c.Param("id")
-	var blogItem Blog
+	var blogItem model.Blog
 
 	// get spesific data
-	getData := DB.First(&blogItem, "id = ?", id)
+	getData := config.DB.First(&blogItem, "id = ?", id)
 	if getData.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"Status":  "StatusNotFound",
@@ -102,7 +104,7 @@ func DeleteBlog(c *gin.Context) {
 	}
 
 	// save / update
-	DB.Delete(&blogItem)
+	config.DB.Delete(&blogItem)
 
 	c.JSON(http.StatusAccepted, gin.H{
 		"Status":  "Deleted",
