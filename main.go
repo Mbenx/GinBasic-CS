@@ -3,6 +3,7 @@ package main
 import (
 	"GinBAsic/config"
 	"GinBAsic/core"
+	"GinBAsic/midleware"
 
 	// "./core"
 
@@ -34,26 +35,30 @@ func main() {
 	{
 		v1.GET("/", core.GetHome)
 
+		v1.GET("/checkToken", midleware.IsAuth()) // IsAuth
+
 		auth := v1.Group("/auth")
 		{
 			auth.GET("/", core.IndexHandler)
 			auth.GET("/:provider", core.RedirectHandler)
 			auth.GET("/:provider/callback", core.CallbackHandler)
+			auth.POST("/login", core.Login)
+			auth.POST("/register", core.Register)
 		}
 
 		blogs := v1.Group("/blog")
 		{
-			blogs.GET("/", core.GetBlog)
-			blogs.GET("/:id", core.GetBlogByID)
-			blogs.POST("/", core.InsertBlog)
-			blogs.PUT("/", core.UpdateBlog)
-			blogs.DELETE("/:id", core.DeleteBlog)
+			blogs.GET("/", midleware.IsAuth(), core.GetBlog)           // IsAuth
+			blogs.GET("/:id", midleware.IsAuth(), core.GetBlogByID)    // IsAuth
+			blogs.POST("/", midleware.IsUser(), core.InsertBlog)       // IsUser
+			blogs.PUT("/", midleware.IsAdmin(), core.UpdateBlog)       // IsAdmin || user_id created
+			blogs.DELETE("/:id", midleware.IsAdmin(), core.DeleteBlog) // IsAdmin || user_id created
 		}
 		users := v1.Group("/user")
 		{
-			users.GET("/", core.GetUser)
-			users.GET("/:id", core.GetUserByID)
-			users.POST("/", core.InsertUser)
+			users.GET("/", midleware.IsAdmin(), core.GetUser)        // IsAdmin
+			users.GET("/:id", midleware.IsAdmin(), core.GetUserByID) // IsAdmin || user_id spesific
+			users.POST("/", midleware.IsAdmin(), core.InsertUser)    // IsAdmin
 		}
 	}
 
