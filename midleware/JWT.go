@@ -35,7 +35,7 @@ func CheckJWT(role uint) gin.HandlerFunc {
 			if token.Valid {
 				claim := token.Claims.(jwt.MapClaims)
 
-				user_id := uint(claim["user_id"].(float64))
+				// user_id := uint(claim["user_id"].(float64))
 				role_id := uint(claim["user_role"].(float64))
 
 				fmt.Println("Role")
@@ -44,11 +44,11 @@ func CheckJWT(role uint) gin.HandlerFunc {
 
 				if role == role_id {
 					fmt.Println("Role as Admin")
-					c.Set("jwt_user_id", user_id)
-					c.Set("jwt_role_id", role_id)
+					c.Set("jwt_user_id", claim["user_id"])
+					// c.Set("jwt_role_id", role_id)
 				} else if role == 9 {
-					c.Set("jwt_user_id", user_id)
-					c.Set("jwt_role_id", role_id)
+					c.Set("jwt_user_id", claim["user_id"])
+					// c.Set("jwt_role_id", role_id)
 				} else {
 					c.JSON(http.StatusUnprocessableEntity, gin.H{
 						"Status":  "UnprocessableEntity",

@@ -19,6 +19,24 @@ func InitDB() {
 	}
 
 	// run migration
-	DB.AutoMigrate(&model.Blog{})
 	DB.AutoMigrate(&model.User{})
+	DB.AutoMigrate(&model.Blog{})
+
+	DB.AutoMigrate(&model.Department{})
+	DB.AutoMigrate(&model.Position{})
+	DB.AutoMigrate(&model.Employee{})
+	DB.AutoMigrate(&model.Inventory{})
+	DB.AutoMigrate(&model.Archive{})
+	DB.AutoMigrate(&model.EmployeeInventories{})
+
+	// DB.Table("employee_inventories").AddForeignKey("employee_id", "employees(id)", "CASCADE", "CASCADE")
+	// DB.Table("employee_inventories").AddForeignKey("inventory_id", "inventories(id)", "CASCADE", "CASCADE")
+
+	// DB.Migrator().CurrentDatabase()
+	// DB.Migrator().CreateConstraint(&model.User{}, "Blogs")
+	// DB.Migrator().CreateConstraint(&model.User{}), "fk_users_blogs")
+
+	// DB.Model(&model.Blog{}).AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
+	// DB.Model(&model.User{}).Related(&model.Blog{})
+
 }

@@ -3,6 +3,7 @@ package core
 import (
 	"GinBAsic/config"
 	"GinBAsic/model"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,8 +11,15 @@ import (
 
 func GetBlog(c *gin.Context) {
 	blogData := []model.Blog{}
+	userData := []model.User{}
 
 	config.DB.Find(&blogData)
+
+	// getUser := config.DB.Model(&userData).Association("Blogs").Find(&userData)
+	getUser := config.DB.Preload("Blogs").Find(&userData)
+
+	fmt.Println("getUser")
+	fmt.Println(getUser)
 
 	c.JSON(200, gin.H{
 		"Message": "Welcome To Gin Framework",
@@ -43,10 +51,15 @@ func GetBlogByID(c *gin.Context) {
 }
 
 func InsertBlog(c *gin.Context) {
+	fmt.Println("jwt_user_id")
+	userID := uint(c.MustGet("jwt_user_id").(float64))
+	fmt.Println(userID)
+
 	blog := model.Blog{
-		Title: c.PostForm("title"),
-		Desc:  c.PostForm("desc"),
-		Slug:  c.PostForm("slug"),
+		Title:  c.PostForm("title"),
+		Desc:   c.PostForm("desc"),
+		Slug:   c.PostForm("slug"),
+		UserID: userID,
 	}
 
 	config.DB.Create(&blog)
@@ -60,6 +73,9 @@ func InsertBlog(c *gin.Context) {
 
 func UpdateBlog(c *gin.Context) {
 	id := c.PostForm("id")
+
+	jwtUserID := uint(c.MustGet("jwt_user_id").(float64))
+
 	var blogItem model.Blog
 
 	// get spesific data
@@ -68,6 +84,19 @@ func UpdateBlog(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"Status":  "StatusNotFound",
 			"Message": "Data Not Found",
+		})
+		c.Abort()
+		return
+	}
+
+	fmt.Println("jwtUserID")
+	fmt.Println(jwtUserID)
+	fmt.Println(blogItem.UserID)
+
+	if blogItem.UserID != jwtUserID {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"Status":  "Not Acceptable",
+			"Message": "Your are not Owner this article",
 		})
 		c.Abort()
 		return

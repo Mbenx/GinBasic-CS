@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
+	Blog     []Blog
 	Username string `gorm:"unique_index"`
 	Fullname string
 	Email    string
